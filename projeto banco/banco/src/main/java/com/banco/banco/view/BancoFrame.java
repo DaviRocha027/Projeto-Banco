@@ -1,5 +1,7 @@
 package com.banco.banco.view;
+import com.google.gson.Gson;
 
+import com.banco.banco.Conta;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -11,66 +13,92 @@ import java.awt.event.ActionListener;
 
 public class BancoFrame extends JFrame {
 
-    private JTable table;
-    private DefaultTableModel tableModel;
-    private JTextField numeroField;
-    private JTextField saldoField;
-    private JTextField tipoContaField;
-    private JTextField limiteOuRendimentoField;
+	 private JTable table;
+	    private DefaultTableModel tableModel;
+	    private JTextField numeroField, saldoField, tipoContaField, limiteField, rendimentoField;
 
-    private Gson gson;
+	    public BancoFrame() {
+	        setTitle("Sistema Bancário");
+	        setSize(900, 600);
+	        setDefaultCloseOperation(EXIT_ON_CLOSE);
+	        setLocationRelativeTo(null);
+	        setLayout(new BorderLayout(10, 10));
 
-    public BancoFrame() {
-        gson = new Gson(); // Inicializa o Gson
+	        // Painel Superior - Cadastro de Conta
+	        JPanel cadastroPanel = new JPanel(new GridBagLayout());
+	        cadastroPanel.setBorder(BorderFactory.createTitledBorder("Cadastro de Conta"));
+	        GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        setTitle("Sistema Bancário");
-        setSize(800, 600);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+	        // Linha 1 - Número e Saldo Inicial
+	        gbc.gridx = 0; gbc.gridy = 0;
+	        cadastroPanel.add(new JLabel("Número da Conta:"), gbc);
+	        numeroField = new JTextField(10);
+	        gbc.gridx = 1;
+	        cadastroPanel.add(numeroField, gbc);
 
-        // Painel superior (para entrada de dados)
-        JPanel inputPanel = new JPanel(new GridLayout(5, 2));
-        inputPanel.add(new JLabel("Número da Conta:"));
-        numeroField = new JTextField();
-        inputPanel.add(numeroField);
+	        gbc.gridx = 2;
+	        cadastroPanel.add(new JLabel("Saldo Inicial:"), gbc);
+	        saldoField = new JTextField(10);
+	        gbc.gridx = 3;
+	        cadastroPanel.add(saldoField, gbc);
 
-        inputPanel.add(new JLabel("Saldo Inicial:"));
-        saldoField = new JTextField();
-        inputPanel.add(saldoField);
+	        // Linha 2 - Tipo da Conta
+	        gbc.gridx = 0; gbc.gridy = 1;
+	        cadastroPanel.add(new JLabel("Tipo da Conta:"), gbc);
+	        tipoContaField = new JTextField(15);
+	        gbc.gridx = 1; gbc.gridwidth = 3;
+	        cadastroPanel.add(tipoContaField, gbc);
 
-        inputPanel.add(new JLabel("Tipo da Conta (Corrente/Poupança/Especial):"));
-        tipoContaField = new JTextField();
-        inputPanel.add(tipoContaField);
+	        // Linha 3 - Limite e Rendimento
+	        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 1;
+	        cadastroPanel.add(new JLabel("Limite:"), gbc);
+	        limiteField = new JTextField(10);
+	        gbc.gridx = 1;
+	        cadastroPanel.add(limiteField, gbc);
 
-        inputPanel.add(new JLabel("Limite ou Rendimento:"));
-        limiteOuRendimentoField = new JTextField();
-        inputPanel.add(limiteOuRendimentoField);
+	        gbc.gridx = 2;
+	        cadastroPanel.add(new JLabel("Rendimento:"), gbc);
+	        rendimentoField = new JTextField(10);
+	        gbc.gridx = 3;
+	        cadastroPanel.add(rendimentoField, gbc);
 
-        JButton criarContaButton = new JButton("Criar Conta");
-        inputPanel.add(criarContaButton);
+	        // Linha 4 - Botões
+	        gbc.gridx = 1; gbc.gridy = 3; gbc.gridwidth = 1;
+	        JButton criarContaButton = new JButton("Criar Conta");
+	        cadastroPanel.add(criarContaButton, gbc);
 
-        JButton atualizarTabelaButton = new JButton("Atualizar Tabela");
-        inputPanel.add(atualizarTabelaButton);
+	        gbc.gridx = 2;
+	        JButton atualizarTabelaButton = new JButton("Atualizar Tabela");
+	        cadastroPanel.add(atualizarTabelaButton, gbc);
 
-        add(inputPanel, BorderLayout.NORTH);
+	        add(cadastroPanel, BorderLayout.NORTH);
 
-        // Painel central (Tabela)
-        tableModel = new DefaultTableModel(new String[]{"ID", "Número", "Saldo", "Tipo", "Limite/Rendimento"}, 0);
-        table = new JTable(tableModel);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+	        // Painel Central - Tabela de Contas
+	        JPanel tabelaPanel = new JPanel(new BorderLayout());
+	        tabelaPanel.setBorder(BorderFactory.createTitledBorder("Contas Cadastradas"));
 
-        // Painel inferior (Operações)
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton consultarSaldoButton = new JButton("Consultar Saldo");
-        JButton sacarButton = new JButton("Sacar");
-        JButton depositarButton = new JButton("Depositar");
+	        tableModel = new DefaultTableModel(new String[]{"ID", "Número", "Saldo", "Tipo", "Limite", "Rendimento"}, 0);
+	        table = new JTable(tableModel);
+	        tabelaPanel.add(new JScrollPane(table), BorderLayout.CENTER);
 
-        buttonPanel.add(consultarSaldoButton);
-        buttonPanel.add(sacarButton);
-        buttonPanel.add(depositarButton);
+	        add(tabelaPanel, BorderLayout.CENTER);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+	        // Painel Inferior - Operações
+	        JPanel operacoesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+	        operacoesPanel.setBorder(BorderFactory.createTitledBorder("Operações"));
+
+	        JButton consultarSaldoButton = new JButton("Consultar Saldo");
+	        JButton sacarButton = new JButton("Sacar");
+	        JButton depositarButton = new JButton("Depositar");
+
+	        operacoesPanel.add(consultarSaldoButton);
+	        operacoesPanel.add(sacarButton);
+	        operacoesPanel.add(depositarButton);
+
+	        add(operacoesPanel, BorderLayout.SOUTH);
+
 
         // Configurar ações dos botões
         criarContaButton.addActionListener(new ActionListener() {
@@ -115,21 +143,15 @@ public class BancoFrame extends JFrame {
         String numero = numeroField.getText();
         double saldo = Double.parseDouble(saldoField.getText());
         String tipo = tipoContaField.getText().toLowerCase();
-        double limiteOuRendimento = Double.parseDouble(limiteOuRendimentoField.getText());
+        Double limite = limiteField.getText().isEmpty() ? null : Double.parseDouble(limiteField.getText());
+        Double rendimento = rendimentoField.getText().isEmpty() ? null : Double.parseDouble(rendimentoField.getText());
 
+        // Configurar JSON para envio
+        String json = new Gson().toJson(new ContaRequest(numero, saldo, tipo, limite, rendimento));
+
+        // Chamada à API REST
         try {
-            // Criar JSON com Gson
-            JsonObject json = new JsonObject();
-            json.addProperty("numero", numero);
-            json.addProperty("saldo", saldo);
-
-            if (tipo.equals("poupanca")) {
-                json.addProperty("rendimento", limiteOuRendimento);
-            } else if (tipo.equals("especial")) {
-                json.addProperty("limite", limiteOuRendimento);
-            }
-
-            APIClient.post("http://localhost:8080/api/contas/criar", gson.toJson(json));
+            APIClient.post("http://localhost:8081/api/contas/criar", json);
             JOptionPane.showMessageDialog(this, "Conta criada com sucesso!");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao criar conta: " + e.getMessage());
@@ -138,28 +160,35 @@ public class BancoFrame extends JFrame {
 
     private void carregarContas() {
         try {
-            String response = APIClient.get("http://localhost:8080/api/contas");
-            tableModel.setRowCount(0); // Limpar tabela
-            JsonObject[] contas = gson.fromJson(response, JsonObject[].class);
+            String response = APIClient.get("http://localhost:8081/api/contas");
+            Gson gson = new Gson();
 
-            for (JsonObject conta : contas) {
+            Conta[] contas = gson.fromJson(response, Conta[].class);
+
+            tableModel.setRowCount(0);
+
+            for (Conta conta : contas) {
+                String tipo = conta.getTipo();
+                Double limite = conta.getLimite() != null ? conta.getLimite() : 0.0;
+                Double rendimento = conta.getRendimento() != null ? conta.getRendimento() : 0.0;
+
                 tableModel.addRow(new Object[]{
-                        conta.get("id").getAsInt(),
-                        conta.get("numero").getAsString(),
-                        conta.get("saldo").getAsDouble(),
-                        conta.get("tipo").getAsString(),
-                        conta.has("limite") ? conta.get("limite").getAsDouble() : conta.has("rendimento") ? conta.get("rendimento").getAsDouble() : null
+                    conta.getId(),
+                    conta.getNumero(),
+                    conta.getSaldo(),
+                    tipo,
+                    tipo.equals("ContaEspecial") ? limite : rendimento
                 });
             }
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao carregar contas: " + e.getMessage());
         }
     }
-
     private void consultarSaldo() {
         try {
             String numero = numeroField.getText();
-            String response = APIClient.get("http://localhost:8080/api/contas/saldo/" + numero);
+            String response = APIClient.get("http://localhost:8081/api/contas/saldo/" + numero);
             JOptionPane.showMessageDialog(this, "Saldo da conta: " + response);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao consultar saldo: " + e.getMessage());
@@ -170,12 +199,12 @@ public class BancoFrame extends JFrame {
         try {
             String numero = numeroField.getText();
             double valor = Double.parseDouble(JOptionPane.showInputDialog("Informe o valor do saque:"));
-
+            Gson gson = new Gson();
             JsonObject json = new JsonObject();
             json.addProperty("numero", numero);
             json.addProperty("valor", valor);
 
-            APIClient.post("http://localhost:8080/api/contas/sacar", gson.toJson(json));
+            APIClient.post("http://localhost:8081/api/contas/sacar", gson.toJson(json));
             JOptionPane.showMessageDialog(this, "Saque realizado com sucesso!");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao realizar saque: " + e.getMessage());
@@ -186,12 +215,12 @@ public class BancoFrame extends JFrame {
         try {
             String numero = numeroField.getText();
             double valor = Double.parseDouble(JOptionPane.showInputDialog("Informe o valor do depósito:"));
-
+            Gson gson = new Gson();
             JsonObject json = new JsonObject();
             json.addProperty("numero", numero);
             json.addProperty("valor", valor);
 
-            APIClient.post("http://localhost:8080/api/contas/depositar", gson.toJson(json));
+            APIClient.post("http://localhost:8081/api/contas/depositar", gson.toJson(json));
             JOptionPane.showMessageDialog(this, "Depósito realizado com sucesso!");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao realizar depósito: " + e.getMessage());

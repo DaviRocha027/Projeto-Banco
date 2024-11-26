@@ -1,12 +1,19 @@
 package com.banco.banco;
-
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 @Entity
+@DiscriminatorValue("Corrente")
 public class ContaCorrente extends Conta {
-    public ContaCorrente() {}
 
+    // Construtor
     public ContaCorrente(String numero, double saldo) {
-        super();
+        this.setNumero(numero);
+        this.setSaldo(saldo);
+        this.setTipo("ContaCorrente");
+    }
+
+    public ContaCorrente() {
+        // Construtor padrão
     }
 }

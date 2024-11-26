@@ -10,32 +10,41 @@ public class APIClient {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Content-Type", "application/json");
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        InputStream is = conn.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder response = new StringBuilder();
         String line;
-
-        while ((line = in.readLine()) != null) {
+        while ((line = reader.readLine()) != null) {
             response.append(line);
         }
-        in.close();
+        reader.close();
+
+        System.out.println("Resposta da API: " + response.toString());
+
+        
         return response.toString();
     }
 
-    public static void post(String endpoint, String json) throws IOException {
-        URL url = new URL(endpoint);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoOutput(true);
+    public static void post(String url, String json) throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setDoOutput(true);
 
-        OutputStream os = conn.getOutputStream();
-        os.write(json.getBytes());
-        os.flush();
-        os.close();
+        try (OutputStream os = connection.getOutputStream()) {
+            os.write(json.getBytes());
+            os.flush();
+        }
 
-        if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-            throw new RuntimeException("Erro na requisição: " + conn.getResponseCode());
+        int responseCode = connection.getResponseCode();
+
+        // Tratar 201 como sucesso
+        if (responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK) {
+            // Sucesso: não lance exceção
+            return;
+        } else {
+            // Caso contrário, trate como erro
+            throw new Exception("Erro na requisição: HTTP " + responseCode);
         }
     }
 }

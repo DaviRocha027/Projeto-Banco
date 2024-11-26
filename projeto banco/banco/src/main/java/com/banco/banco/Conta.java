@@ -3,21 +3,22 @@ package com.banco.banco;
 import jakarta.persistence.*;
 
 @Entity
-public class Conta {
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
+public abstract class Conta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String numero;
 
+    @Column(nullable = false)
     private double saldo;
 
-    private String tipo; // Ex: "corrente", "poupanca", "especial"
-
-    private Double limite; // Apenas para contas especiais
-
-    private Double rendimento; // Apenas para contas poupança
+    @Column(nullable = false)
+    private String tipo;
 
     // Getters e setters
     public Long getId() {
@@ -51,20 +52,12 @@ public class Conta {
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
-
     public Double getLimite() {
-        return limite;
-    }
-
-    public void setLimite(Double limite) {
-        this.limite = limite;
+        return null; // Implementação padrão para classes que não têm limite
     }
 
     public Double getRendimento() {
-        return rendimento;
+        return null; // Implementação padrão para classes que não têm rendimento
     }
 
-    public void setRendimento(Double rendimento) {
-        this.rendimento = rendimento;
-    }
 }
